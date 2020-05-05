@@ -4,5 +4,7 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"python.pythonPath": "/Users/jeff/.pyenv/versions/3.6.6/bin/python"
+	}
 }
