@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "/Users/jeff/.local/share/virtualenvs/tweetme-eUIY7EpN/bin/python"
+    "python.pythonPath": "/Users/jeff/.local/share/virtualenvs/tweetme-eUIY7EpN/bin/python",
+    "python.pipenvPath": "/Library/Frameworks/Python.framework/Versions/3.6/bin/pipenv"
 }

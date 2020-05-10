@@ -8,6 +8,7 @@ pylint = "*"
 
 [packages]
 django = "==2.2"
+djangorestframework = "*"
 
 [requires]
 python_version = "3.6"
