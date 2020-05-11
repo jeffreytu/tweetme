@@ -105,39 +105,44 @@ def tweet_action_view(request, *args, **kwargs):
         data = serializer.validated_data
         tweet_id = data.get("id")
         action = data.get("action")
+        content = data.get("content")
         qs = Tweet.objects.filter(id=tweet_id)
         if not qs.exists():
             return Response({}, status=404)
         obj = qs.first()
         if action == "like":
             obj.likes.add(request.user)
+            serializer = TweetSerializer(obj)
+            return Response(serializer.data, status=200)
         elif action == "unlike":
             obj.likes.remove(request.user)
+            serializer = TweetSerializer(obj)
+            return Response(serializer.data, status=200)
         elif action == "retweet":
-            print(obj)
+            print(content)
             new_tweet = Tweet.objects.create(
                 user=request.user,
                 parent=obj,
                 content=content,
             )
             serializer = TweetSerializer(new_tweet)
-            return Response(serializer.data, status=200)
+            return Response(serializer.data, status=201)
     return Response({}, status=200)
 
 
-def tweet_detail_view_pure_django(request, tweet_id, *args, **kwargs):
+# def tweet_detail_view_pure_django(request, tweet_id, *args, **kwargs):
 
-    data = {
-        "id": tweet_id,
-    }
-    status = 200
+#     data = {
+#         "id": tweet_id,
+#     }
+#     status = 200
 
-    try:
-        obj = Tweet.objects.get(id=tweet_id)
-        data['content'] = obj.content
-    except:
-        data['message'] = "Not found"
-        status = 404
-    # return HttpResponse(f"<h1>Hello world {tweet_id} - {obj.content} </h1>")
+#     try:
+#         obj = Tweet.objects.get(id=tweet_id)
+#         data['content'] = obj.content
+#     except:
+#         data['message'] = "Not found"
+#         status = 404
+#     # return HttpResponse(f"<h1>Hello world {tweet_id} - {obj.content} </h1>")
 
-    return JsonResponse(data, status=status)
+#     return JsonResponse(data, status=status)
