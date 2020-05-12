@@ -9,9 +9,11 @@ User = get_user_model()
 class TweetTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='abc', password='somepassword')
+        self.userb = User.objects.create_user(username='abc-2', password='somepassword')
         Tweet.objects.create(content="my 1st tweet test", user=self.user)
         Tweet.objects.create(content="my 2 tweet test", user=self.user)
-        Tweet.objects.create(content="my 3 tweet test", user=self.user)
+        Tweet.objects.create(content="my 3 tweet test", user=self.userb)
+        self.currentCount = Tweet.objects.all().count()
 
     def test_tweet_created(self):
         tweet_obj = Tweet.objects.create(content="my 5 tweet test", user=self.user)
@@ -48,5 +50,35 @@ class TweetTestCase(TestCase):
     def test_action_retweet(self):
         client = self.get_client()
         response = client.post("/api/tweets/action", {"id": 2, "action": "retweet"})
-        print(response)
         self.assertEqual(response.status_code, 201)
+        data = response.json()
+        new_tweet_id = data.get("id")
+        self.assertNotEqual(2, new_tweet_id) #check that the retweet id is not the same as original tweet id
+        self.assertEqual(self.currentCount + 1, new_tweet_id) #check that retweet has been added to tweets
+
+    def test_tweet_create_api_view(self):
+        request_data = {"content": "This is my test tweet"}
+        client = self.get_client()
+        response = client.post("/api/tweets/create/", request_data)
+        self.assertEqual(response.status_code, 201)
+        request_data = response.json()
+        new_tweet_id = request_data.get("id")
+        self.assertEqual(self.currentCount + 1, new_tweet_id) #check that retweet has been added to tweets
+
+    def test_tweet_detail_api_view(self):
+        client = self.get_client()
+        response = client.get("/api/tweets/1/")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        _id = data.get("id")
+        self.assertEqual(_id, 1)
+
+    def test_tweet_delete_api_view(self):
+        client = self.get_client()
+        response = client.delete("/api/tweets/1/delete/")
+        self.assertEqual(response.status_code, 200)
+        client = self.get_client()
+        response = client.delete("/api/tweets/1/delete/")
+        self.assertEqual(response.status_code, 404)
+        response_incorrect_owner = client.delete("/api/tweets/3/delete/")
+        self.assertEqual(response_incorrect_owner.status_code, 401)
